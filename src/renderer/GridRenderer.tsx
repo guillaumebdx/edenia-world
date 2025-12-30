@@ -1,20 +1,20 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { GridData } from '../data/GridData';
+import { WorldState } from '../data/WorldState';
 import { Tile } from './Tile';
 
 type GridRendererProps = {
-  grid: GridData;
+  world: WorldState;
   tileSize: number;
 };
 
-export const GridRenderer: React.FC<GridRendererProps> = ({ grid, tileSize }) => {
+export const GridRenderer: React.FC<GridRendererProps> = ({ world, tileSize }) => {
   return (
     <View style={styles.grid}>
-      {grid.map((row, y) => (
+      {world.tiles.map((row, y) => (
         <View key={y} style={styles.row}>
           {row.map((tile) => (
-            <Tile key={tile.id} size={tileSize} />
+            <Tile key={tile.id} size={tileSize} tileType={tile.type} />
           ))}
         </View>
       ))}

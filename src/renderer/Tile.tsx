@@ -1,11 +1,18 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-type TileProps = {
-  size: number;
+const TILE_COLORS: Record<number, string> = {
+  0: '#888',
+  1: '#4a4',
 };
 
-export const Tile: React.FC<TileProps> = ({ size }) => {
+type TileProps = {
+  size: number;
+  tileType: number;
+};
+
+export const Tile: React.FC<TileProps> = ({ size, tileType }) => {
+  const backgroundColor = TILE_COLORS[tileType] ?? '#888';
   return (
     <View
       style={[
@@ -13,6 +20,7 @@ export const Tile: React.FC<TileProps> = ({ size }) => {
         {
           width: size,
           height: size,
+          backgroundColor,
         },
       ]}
     />
@@ -21,7 +29,6 @@ export const Tile: React.FC<TileProps> = ({ size }) => {
 
 const styles = StyleSheet.create({
   tile: {
-    backgroundColor: '#888',
     borderWidth: 1,
     borderColor: '#444',
   },
