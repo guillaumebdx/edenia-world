@@ -1,35 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState, useRef, useMemo } from 'react';
+import { StyleSheet, View, PanResponder, Dimensions } from 'react-native';
 import { GridRenderer } from './src/renderer/GridRenderer';
-import { createWorldState, WorldState } from './src/data/WorldState';
-import { applyAction } from './src/actions/ActionDispatcher';
-import { Action } from './src/actions/Action';
+import { WorldState } from './src/data/WorldState';
+import { createCameraState, moveCamera, CameraState } from './src/data/CameraState';
+import { loadWorldFromConfig, InitialWorldConfig } from './src/data/WorldLoader';
+import initialWorldConfig from './src/data/initialWorld.json';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TILE_SIZE = 16;
+const VIEWPORT_WIDTH = Math.ceil(SCREEN_WIDTH / TILE_SIZE);
+const VIEWPORT_HEIGHT = Math.ceil(SCREEN_HEIGHT / TILE_SIZE);
 
-const initialWorldState = createWorldState(20, 20);
+const initialWorldState = loadWorldFromConfig(initialWorldConfig as InitialWorldConfig);
+const initialCamera = createCameraState(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
 export default function App() {
-  const [world, setWorld] = useState<WorldState>(initialWorldState);
+  const [world] = useState<WorldState>(initialWorldState);
+  const [camera, setCamera] = useState<CameraState>(initialCamera);
+  const lastPan = useRef({ x: 0, y: 0 });
 
-  const dispatch = (action: Action) => {
-    setWorld((prev) => applyAction(prev, action));
-  };
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+          lastPan.current = { x: 0, y: 0 };
+        },
+        onPanResponderMove: (_, gestureState) => {
+          const dx = Math.floor((lastPan.current.x - gestureState.dx) / TILE_SIZE);
+          const dy = Math.floor((lastPan.current.y - gestureState.dy) / TILE_SIZE);
 
-  useEffect(() => {
-    dispatch({
-      type: 'SET_TILE_TYPE',
-      payload: { x: 5, y: 5, tileType: 1 },
-    });
-    dispatch({
-      type: 'SET_TILE_TYPE',
-      payload: { x: 10, y: 10, tileType: 1 },
-    });
-  }, []);
+          if (dx !== 0 || dy !== 0) {
+            setCamera((prev) => moveCamera(prev, dx, dy, world.width, world.height));
+            lastPan.current = {
+              x: lastPan.current.x - dx * TILE_SIZE,
+              y: lastPan.current.y - dy * TILE_SIZE,
+            };
+          }
+        },
+      }),
+    [world.width, world.height]
+  );
 
   return (
-    <View style={styles.container}>
-      <GridRenderer world={world} tileSize={TILE_SIZE} />
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <GridRenderer world={world} camera={camera} tileSize={TILE_SIZE} />
     </View>
   );
 }
@@ -38,7 +54,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#222',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
