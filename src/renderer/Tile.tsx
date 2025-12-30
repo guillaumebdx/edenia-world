@@ -3,6 +3,8 @@ import { View, Image, StyleSheet } from 'react-native';
 import { TILE_ASSETS } from './TileAssets';
 import { TileState, GroundType } from '../data/WorldState';
 import { getAssetSize } from '../data/AssetConfig';
+import { getAnimationConfig } from '../data/AnimationConfig';
+import { AnimatedSprite } from './AnimatedSprite';
 
 const GROUND_COLORS: Record<GroundType, string> = {
   grass: '#5a8f3c',
@@ -13,14 +15,23 @@ const GROUND_COLORS: Record<GroundType, string> = {
 type TileProps = {
   size: number;
   tile: TileState;
+  showGrid: boolean;
 };
 
-export const Tile: React.FC<TileProps> = ({ size, tile }) => {
+export const Tile: React.FC<TileProps> = ({ size, tile, showGrid }) => {
   const asset = TILE_ASSETS[tile.type];
   const assetSize = getAssetSize(tile.type);
   const groundColor = GROUND_COLORS[tile.ground];
+  const animation = getAnimationConfig(tile.type);
 
-  const showSprite = tile.isAnchor && asset;
+  const showSprite = tile.isAnchor && (asset || animation);
+
+  const spriteStyle = {
+    position: 'absolute' as const,
+    width: size * assetSize.width,
+    height: size * assetSize.height,
+    zIndex: 1,
+  };
 
   return (
     <View
@@ -30,21 +41,19 @@ export const Tile: React.FC<TileProps> = ({ size, tile }) => {
           width: size,
           height: size,
           backgroundColor: groundColor,
+          borderWidth: showGrid ? 1 : 0,
         },
       ]}
     >
-      {showSprite && (
+      {showSprite && animation ? (
+        <AnimatedSprite animation={animation} style={spriteStyle} />
+      ) : showSprite && asset ? (
         <Image
           source={asset}
-          style={{
-            position: 'absolute',
-            width: size * assetSize.width,
-            height: size * assetSize.height,
-            zIndex: 1,
-          }}
+          style={spriteStyle}
           resizeMode="cover"
         />
-      )}
+      ) : null}
     </View>
   );
 };

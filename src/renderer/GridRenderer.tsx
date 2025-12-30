@@ -8,22 +8,27 @@ type GridRendererProps = {
   world: WorldState;
   camera: CameraState;
   tileSize: number;
+  showGrid: boolean;
 };
 
-export const GridRenderer: React.FC<GridRendererProps> = ({ world, camera, tileSize }) => {
+export const GridRenderer: React.FC<GridRendererProps> = ({ world, camera, tileSize, showGrid }) => {
   const visibleTiles: React.ReactNode[] = [];
 
-  for (let vy = 0; vy < camera.viewportHeight; vy++) {
+  const extraTiles = 1;
+  const renderWidth = camera.viewportWidth + extraTiles;
+  const renderHeight = camera.viewportHeight + extraTiles;
+
+  for (let vy = 0; vy < renderHeight; vy++) {
     const worldY = camera.y + vy;
-    if (worldY >= world.height) break;
+    if (worldY < 0 || worldY >= world.height) continue;
 
     const rowTiles: React.ReactNode[] = [];
-    for (let vx = 0; vx < camera.viewportWidth; vx++) {
+    for (let vx = 0; vx < renderWidth; vx++) {
       const worldX = camera.x + vx;
-      if (worldX >= world.width) break;
+      if (worldX < 0 || worldX >= world.width) continue;
 
       const tile = world.tiles[worldY][worldX];
-      rowTiles.push(<Tile key={tile.id} size={tileSize} tile={tile} />);
+      rowTiles.push(<Tile key={tile.id} size={tileSize} tile={tile} showGrid={showGrid} />);
     }
 
     visibleTiles.push(
@@ -33,7 +38,21 @@ export const GridRenderer: React.FC<GridRendererProps> = ({ world, camera, tileS
     );
   }
 
-  return <View style={styles.grid}>{visibleTiles}</View>;
+  return (
+    <View
+      style={[
+        styles.grid,
+        {
+          transform: [
+            { translateX: -camera.offsetX },
+            { translateY: -camera.offsetY },
+          ],
+        },
+      ]}
+    >
+      {visibleTiles}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
