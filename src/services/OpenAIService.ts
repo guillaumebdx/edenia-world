@@ -107,6 +107,8 @@ ${JSON.stringify(groundTiles, null, 2)}
 3. N'invente AUCUN enum (utilise uniquement ceux listés ci-dessus)
 4. N'ajoute AUCUN champ supplémentaire
 5. Le JSON doit être directement exécutable
+6. N'inclus QUE les personnages mentionnés dans la demande - les autres gardent leur comportement actuel
+7. Si un seul personnage est mentionné, la réponse ne doit contenir qu'UN SEUL intentUpdate
 
 ## Format de réponse attendu
 {

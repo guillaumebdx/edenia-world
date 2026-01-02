@@ -588,6 +588,7 @@ export const processIntent = (
 ): CharacterState => {
   // Don't process if already moving
   if (character.status === CharacterStatus.MOVING) {
+    console.log(`[ENGINE] ${character.id}: REJECTED - already MOVING`);
     return character;
   }
 
@@ -596,6 +597,7 @@ export const processIntent = (
     return character;
   }
 
+  console.log(`[ENGINE] ${character.id}: Processing intent ${intent.type}`, intent);
   const occupiedTiles = getOccupiedTiles(allCharacters, character.id);
 
   switch (intent.type) {
@@ -614,56 +616,66 @@ export const processIntent = (
     case IntentType.MOVE_TO_INTEREST: {
       const target = findNearestInterest(world, character.tileX, character.tileY, intent.interest, intent.radius, occupiedTiles);
       if (!target) {
+        console.log(`[ENGINE] ${character.id}: REJECTED - no target found for ${intent.interest}`);
         return character;
       }
       if (character.tileX === target.x && character.tileY === target.y) {
+        console.log(`[ENGINE] ${character.id}: Already at destination`);
         return { ...character, intent: { type: IntentType.NONE } };
       }
       const varianceSeed = intent.pathVariance !== PathVariance.NONE 
         ? Date.now() + character.id.charCodeAt(0) 
         : undefined;
+      console.log(`[ENGINE] ${character.id}: Moving to ${intent.interest} at (${target.x}, ${target.y})`);
       return setCharacterTargetWithVariance(character, target.x, target.y, world, occupiedTiles, intent.pathVariance, varianceSeed);
     }
 
     case IntentType.MOVE_TO_CHARACTER: {
       // WHEN_IDLE policy: skip unless forced (by BehaviorSystem after target becomes idle)
       if (character.followPolicy === FollowPolicy.WHEN_IDLE && !forceProcess) {
+        console.log(`[ENGINE] ${character.id}: WAITING - WHEN_IDLE policy, target ${intent.targetId} not idle yet`);
         return character;
       }
 
       const targetChar = allCharacters.find(c => c.id === intent.targetId);
       if (!targetChar) {
+        console.log(`[ENGINE] ${character.id}: REJECTED - target character ${intent.targetId} not found`);
         return character;
       }
 
       const dist = Math.abs(targetChar.tileX - character.tileX) + Math.abs(targetChar.tileY - character.tileY);
       if (dist <= intent.radius) {
-        // Already within radius
+        console.log(`[ENGINE] ${character.id}: Already within radius of ${intent.targetId}`);
         return character;
       }
 
       const adjacent = findAdjacentFreeTileWithRadius(targetChar.tileX, targetChar.tileY, world, occupiedTiles, intent.radius);
       if (!adjacent) {
+        console.log(`[ENGINE] ${character.id}: REJECTED - no free tile near ${intent.targetId}`);
         return character;
       }
 
       const varianceSeed = intent.pathVariance !== PathVariance.NONE 
         ? Date.now() + character.id.charCodeAt(0) 
         : undefined;
+      console.log(`[ENGINE] ${character.id}: Moving to character ${intent.targetId} at (${adjacent.x}, ${adjacent.y})`);
       return setCharacterTargetWithVariance(character, adjacent.x, adjacent.y, world, occupiedTiles, intent.pathVariance, varianceSeed);
     }
 
     case IntentType.MOVE_TO_GROUND: {
       const target = findNearestGround(world, character.tileX, character.tileY, intent.ground, occupiedTiles);
       if (!target) {
+        console.log(`[ENGINE] ${character.id}: REJECTED - no ${intent.ground} ground found`);
         return character;
       }
       if (character.tileX === target.x && character.tileY === target.y) {
+        console.log(`[ENGINE] ${character.id}: Already at destination`);
         return { ...character, intent: { type: IntentType.NONE } };
       }
       const varianceSeed = intent.pathVariance !== PathVariance.NONE 
         ? Date.now() + character.id.charCodeAt(0) 
         : undefined;
+      console.log(`[ENGINE] ${character.id}: Moving to ${intent.ground} at (${target.x}, ${target.y})`);
       return setCharacterTargetWithVariance(character, target.x, target.y, world, occupiedTiles, intent.pathVariance, varianceSeed);
     }
 
@@ -686,9 +698,11 @@ const setCharacterTargetWithVariance = (
   const path = findPathAvoidingOccupied(world, currentTile.tileX, currentTile.tileY, targetX, targetY, occupiedTiles, seed);
 
   if (path.length <= 1) {
+    console.log(`[ENGINE] ${character.id}: REJECTED - no path found to (${targetX}, ${targetY})`);
     return character;
   }
 
+  console.log(`[ENGINE] ${character.id}: Path found with ${path.length} steps, status -> MOVING`);
   return {
     ...character,
     targetTileX: targetX,

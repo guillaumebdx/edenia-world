@@ -187,15 +187,19 @@ export const applyBehaviors = (
 // Apply intent updates from LLM response (only updates specified characters)
 export const applyIntentUpdates = (
   characters: CharacterState[],
-  updates: { characterId: string; intent: IntentConfig }[]
+  updates: { characterId: string; intent: IntentConfig; followPolicy?: string }[]
 ): CharacterState[] => {
+  console.log(`[ENGINE] Applying ${updates.length} intent updates:`, updates.map(u => u.characterId));
   return characters.map((char) => {
     const update = updates.find((u) => u.characterId === char.id);
     if (!update) return char;
 
+    console.log(`[ENGINE] ${char.id}: Intent set to ${update.intent.type}`);
     return {
       ...char,
       intent: parseIntent(update.intent),
+      // Reset followPolicy to NEVER unless explicitly specified
+      followPolicy: (update.followPolicy as FollowPolicy) ?? FollowPolicy.NEVER,
       status: CharacterStatus.IDLE,
       path: [],
       pathIndex: 0,

@@ -125,10 +125,15 @@ export default function App() {
         return;
       }
 
-      // Apply intent updates
+      // Apply intent updates with sequential processing to avoid race conditions
       setCharacters((prevChars) => {
         const updatedChars = applyIntentUpdates(prevChars, response.intentUpdates);
-        return updatedChars.map((char) => processIntent(char, updatedChars, world));
+        // Process intents sequentially - each character sees the updated state from previous ones
+        let processedChars = [...updatedChars];
+        for (let i = 0; i < processedChars.length; i++) {
+          processedChars[i] = processIntent(processedChars[i], processedChars, world);
+        }
+        return processedChars;
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -198,13 +203,21 @@ export default function App() {
         onLoadMock1={() => {
           setCharacters((prevChars) => {
             const updatedChars = applyBehaviors(prevChars, charactersBehavior as CharactersBehaviorConfig);
-            return updatedChars.map((char) => processIntent(char, updatedChars, world));
+            let processedChars = [...updatedChars];
+            for (let i = 0; i < processedChars.length; i++) {
+              processedChars[i] = processIntent(processedChars[i], processedChars, world);
+            }
+            return processedChars;
           });
         }}
         onLoadMock2={() => {
           setCharacters((prevChars) => {
             const updatedChars = applyBehaviors(prevChars, charactersBehavior2 as CharactersBehaviorConfig);
-            return updatedChars.map((char) => processIntent(char, updatedChars, world));
+            let processedChars = [...updatedChars];
+            for (let i = 0; i < processedChars.length; i++) {
+              processedChars[i] = processIntent(processedChars[i], processedChars, world);
+            }
+            return processedChars;
           });
         }}
         />
