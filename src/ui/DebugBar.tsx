@@ -6,6 +6,7 @@ type DebugBarProps = {
   onToggleGrid: () => void;
   showCharacterIds: boolean;
   onToggleCharacterIds: () => void;
+  onLoadMock1: () => void;
   onLoadMock2: () => void;
 };
 
@@ -14,6 +15,7 @@ export const DebugBar: React.FC<DebugBarProps> = ({
   onToggleGrid, 
   showCharacterIds, 
   onToggleCharacterIds,
+  onLoadMock1,
   onLoadMock2,
 }) => {
   return (
@@ -28,6 +30,9 @@ export const DebugBar: React.FC<DebugBarProps> = ({
           IDs: {showCharacterIds ? 'ON' : 'OFF'}
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.buttonMargin, styles.mockButton]} onPress={onLoadMock1}>
+        <Text style={styles.buttonText}>Mock1</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.buttonMargin, styles.mockButton]} onPress={onLoadMock2}>
         <Text style={styles.buttonText}>Mock2</Text>
       </TouchableOpacity>
@@ -37,10 +42,6 @@ export const DebugBar: React.FC<DebugBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     height: 50,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     flexDirection: 'row',

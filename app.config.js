@@ -1,0 +1,40 @@
+import 'dotenv/config';
+
+export default {
+  expo: {
+    name: 'Edenia-World',
+    slug: 'Edenia-World',
+    version: '1.0.0',
+    orientation: 'portrait',
+    icon: './assets/icon.png',
+    userInterfaceStyle: 'light',
+    newArchEnabled: true,
+    splash: {
+      image: './assets/splash-icon.png',
+      resizeMode: 'contain',
+      backgroundColor: '#ffffff',
+    },
+    ios: {
+      supportsTablet: true,
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: './assets/adaptive-icon.png',
+        backgroundColor: '#ffffff',
+      },
+      edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
+      package: 'com.guillaumebdx.EdeniaWorld',
+    },
+    web: {
+      favicon: './assets/favicon.png',
+    },
+    extra: {
+      eas: {
+        projectId: 'a9e67d22-e45a-4683-a0ab-13254212afc8',
+      },
+      openaiApiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+    },
+    plugins: ['expo-asset'],
+  },
+};

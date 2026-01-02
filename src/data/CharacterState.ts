@@ -184,6 +184,27 @@ export const applyBehaviors = (
   });
 };
 
+// Apply intent updates from LLM response (only updates specified characters)
+export const applyIntentUpdates = (
+  characters: CharacterState[],
+  updates: { characterId: string; intent: IntentConfig }[]
+): CharacterState[] => {
+  return characters.map((char) => {
+    const update = updates.find((u) => u.characterId === char.id);
+    if (!update) return char;
+
+    return {
+      ...char,
+      intent: parseIntent(update.intent),
+      status: CharacterStatus.IDLE,
+      path: [],
+      pathIndex: 0,
+      targetTileX: null,
+      targetTileY: null,
+    };
+  });
+};
+
 const parseIntent = (config?: IntentConfig): CharacterIntent => {
   if (!config) return { type: IntentType.NONE };
 

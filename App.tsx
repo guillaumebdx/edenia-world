@@ -5,16 +5,22 @@ import { WorldState } from './src/data/WorldState';
 import { createCameraState, moveCameraPixels, CameraState } from './src/data/CameraState';
 import { loadWorldFromConfig, InitialWorldConfig } from './src/data/WorldLoader';
 import { DebugBar } from './src/ui/DebugBar';
+import { PromptInput } from './src/ui/PromptInput';
 import { Character } from './src/renderer/Character';
-import { CharacterState, createCharacterState, CharactersIdentityConfig, CharactersBehaviorConfig, mergeConfigs, applyBehaviors } from './src/data/CharacterState';
+import { CharacterState, createCharacterState, CharactersIdentityConfig, CharactersBehaviorConfig, mergeConfigs, applyBehaviors, applyIntentUpdates } from './src/data/CharacterState';
 import { getAssetSize } from './src/data/AssetConfig';
 import { updateCharacterMovement, updateFacingDirections, processIntent } from './src/systems/CharacterSystem';
 import { processBehavior } from './src/systems/BehaviorSystem';
 import { createEventBus, GameEvent } from './src/systems/EventBus';
+import { buildSystemPrompt, callOpenAI, validateResponse } from './src/services/OpenAIService';
 import initialWorldConfig from './src/data/initialWorld.json';
 import charactersIdentity from './src/data/charactersIdentity.json';
 import charactersBehavior from './src/data/charactersBehavior.json';
 import charactersBehavior2 from './src/data/charactersBehavior2.json';
+
+import Constants from 'expo-constants';
+
+const OPENAI_API_KEY = Constants.expoConfig?.extra?.openaiApiKey || '';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TILE_SIZE = 16;
@@ -30,6 +36,8 @@ export default function App() {
   const [camera, setCamera] = useState<CameraState>(initialCamera);
   const [showGrid, setShowGrid] = useState(true);
   const [showCharacterIds, setShowCharacterIds] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [promptError, setPromptError] = useState<string | null>(null);
   const [characters, setCharacters] = useState<CharacterState[]>(() => {
     // Merge identity and behavior configs
     const mergedConfigs = mergeConfigs(
@@ -94,12 +102,41 @@ export default function App() {
     animationRef.current = requestAnimationFrame(gameLoop);
   }, [world]);
 
-  // Process initial intents on mount
-  useEffect(() => {
-    setCharacters((prevChars) => {
-      return prevChars.map((char) => processIntent(char, prevChars, world));
-    });
-  }, [world]);
+
+  // Handle prompt submission to OpenAI
+  const handlePromptSend = useCallback(async (userPrompt: string) => {
+    if (!OPENAI_API_KEY) {
+      setPromptError('OpenAI API key not configured');
+      return;
+    }
+
+    setIsLoading(true);
+    setPromptError(null);
+
+    try {
+      const systemPrompt = buildSystemPrompt(characters, world);
+      const response = await callOpenAI(OPENAI_API_KEY, systemPrompt, userPrompt);
+
+      // Validate response
+      const validation = validateResponse(response, characters);
+      if (!validation.valid) {
+        setPromptError(`Invalid response: ${validation.error}`);
+        setIsLoading(false);
+        return;
+      }
+
+      // Apply intent updates
+      setCharacters((prevChars) => {
+        const updatedChars = applyIntentUpdates(prevChars, response.intentUpdates);
+        return updatedChars.map((char) => processIntent(char, updatedChars, world));
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setPromptError(`Error: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [characters, world]);
 
   useEffect(() => {
     lastTime.current = Date.now();
@@ -147,18 +184,31 @@ export default function App() {
           />
         ))}
       </View>
-      <DebugBar
+      <View style={styles.bottomPanel}>
+        <PromptInput
+          onSend={handlePromptSend}
+          isLoading={isLoading}
+          error={promptError}
+        />
+        <DebugBar
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid((prev) => !prev)}
         showCharacterIds={showCharacterIds}
         onToggleCharacterIds={() => setShowCharacterIds((prev) => !prev)}
+        onLoadMock1={() => {
+          setCharacters((prevChars) => {
+            const updatedChars = applyBehaviors(prevChars, charactersBehavior as CharactersBehaviorConfig);
+            return updatedChars.map((char) => processIntent(char, updatedChars, world));
+          });
+        }}
         onLoadMock2={() => {
           setCharacters((prevChars) => {
             const updatedChars = applyBehaviors(prevChars, charactersBehavior2 as CharactersBehaviorConfig);
             return updatedChars.map((char) => processIntent(char, updatedChars, world));
           });
         }}
-      />
+        />
+      </View>
     </View>
   );
 }
@@ -170,5 +220,11 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+  },
+  bottomPanel: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
