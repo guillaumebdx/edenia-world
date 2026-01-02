@@ -1,0 +1,110 @@
+{
+  "behaviors": [
+    {
+      "id": "c1",
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "WATER",
+        "radius": 1,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c2",
+      "intent": {
+        "type": "MOVE_TO_GROUND",
+        "ground": "SAND",
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c3",
+      "intent": {
+        "type": "MOVE_TO_TILE",
+        "target": { "x": 30, "y": 15 },
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c4",
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "TREE",
+        "radius": 3,
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c5",
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "FLOWER",
+        "radius": 2,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c6",
+      "intent": {
+        "type": "MOVE_TO_TILE",
+        "target": { "x": 35, "y": 30 },
+        "pathVariance": "NONE"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c7",
+      "intent": {
+        "type": "MOVE_TO_CHARACTER",
+        "targetId": "c4",
+        "radius": 1,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "WHEN_IDLE",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c8",
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "TREE",
+        "radius": 2,
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c9",
+      "intent": {
+        "type": "MOVE_TO_TILE",
+        "target": { "x": 40, "y": 20 },
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c10",
+      "intent": {
+        "type": "MOVE_TO_CHARACTER",
+        "targetId": "c1",
+        "radius": 2,
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "WHEN_IDLE",
+      "arrivalBehavior": "WAIT"
+    }
+  ]
+}

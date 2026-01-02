@@ -6,7 +6,7 @@ export type AssetSize = {
 export const ASSET_SIZES: Record<number, AssetSize> = {
   0: { width: 1, height: 1 },
   1: { width: 3, height: 4 },
-  2: { width: 2, height: 2 },
+  2: { width: 4, height: 2 },
   3: { width: 2, height: 2 },
   4: { width: 1, height: 1 },
 };

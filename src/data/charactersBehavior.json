@@ -1,0 +1,122 @@
+{
+  "behaviors": [
+    {
+      "id": "c1",
+      "start": { "x": 5, "y": 5 },
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "TREE",
+        "radius": 2,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c2",
+      "start": { "x": 11, "y": 6 },
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "FLOWER",
+        "radius": 3,
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c3",
+      "start": { "x": 12, "y": 10 },
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "FLOWER",
+        "radius": 1,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c4",
+      "start": { "x": 3, "y": 14 },
+      "intent": {
+        "type": "MOVE_TO_TILE",
+        "target": { "x": 18, "y": 14 },
+        "pathVariance": "NONE"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c5",
+      "start": { "x": 20, "y": 8 },
+      "intent": {
+        "type": "MOVE_TO_TILE",
+        "target": { "x": 14, "y": 5 },
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c6",
+      "start": { "x": 6, "y": 18 },
+      "followPolicy": "WHEN_IDLE",
+      "intent": {
+        "type": "MOVE_TO_CHARACTER",
+        "targetId": "c1",
+        "radius": 1,
+        "pathVariance": "LOW"
+      },
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c7",
+      "start": { "x": 9, "y": 20 },
+      "followPolicy": "WHEN_IDLE",
+      "intent": {
+        "type": "MOVE_TO_CHARACTER",
+        "targetId": "c2",
+        "radius": 1,
+        "pathVariance": "LOW"
+      },
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c8",
+      "start": { "x": 15, "y": 3 },
+      "followPolicy": "WHEN_IDLE",
+      "intent": {
+        "type": "MOVE_TO_CHARACTER",
+        "targetId": "c3",
+        "radius": 2,
+        "pathVariance": "MEDIUM"
+      },
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c9",
+      "start": { "x": 2, "y": 9 },
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "ROCK",
+        "radius": 2,
+        "pathVariance": "LOW"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    },
+    {
+      "id": "c10",
+      "start": { "x": 22, "y": 12 },
+      "intent": {
+        "type": "MOVE_TO_INTEREST",
+        "interest": "TREE",
+        "radius": 3,
+        "pathVariance": "MEDIUM"
+      },
+      "followPolicy": "NEVER",
+      "arrivalBehavior": "WAIT"
+    }
+  ]
+}

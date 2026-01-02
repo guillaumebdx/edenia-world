@@ -1,0 +1,14 @@
+{
+  "characters": [
+    { "id": "c1", "hairColor": "brown" },
+    { "id": "c2", "hairColor": "grey" },
+    { "id": "c3", "hairColor": "brown" },
+    { "id": "c4", "hairColor": "grey" },
+    { "id": "c5", "hairColor": "brown" },
+    { "id": "c6", "hairColor": "grey" },
+    { "id": "c7", "hairColor": "brown" },
+    { "id": "c8", "hairColor": "grey" },
+    { "id": "c9", "hairColor": "brown" },
+    { "id": "c10", "hairColor": "grey" }
+  ]
+}
