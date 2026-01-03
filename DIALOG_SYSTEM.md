@@ -157,6 +157,8 @@ Les personnages :
 │     - Fade in → Affichage → Fade out → Délai → Next             │
 ├─────────────────────────────────────────────────────────────────┤
 │  8. DialogBubble affiche chaque bulle au-dessus du personnage   │
+├─────────────────────────────────────────────────────────────────┤
+│  9. Si le personnage est hors champ, la caméra se déplace       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

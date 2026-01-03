@@ -245,6 +245,7 @@ En plus du système de mouvement, un **système de dialogue** permet aux personn
 3. L'utilisateur clique sur **Dial** dans la barre de debug
 4. Un appel OpenAI génère un dialogue contextuel
 5. Les bulles s'affichent séquentiellement au-dessus des personnages
+6. Si un personnage qui parle est hors champ, la caméra se déplace vers lui
 
 ### Ton des dialogues
 

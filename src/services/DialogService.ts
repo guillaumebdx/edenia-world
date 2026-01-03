@@ -78,15 +78,17 @@ Les personnages vivent dans un petit monde. Ils savent qu'ils sont observés par
 
 ## Ton attendu
 
-- Humour NOIR, cynique, désabusé
-- Humour SEC, pince-sans-rire, jamais niais
-- Charriages entre personnages (parfois méchants mais drôles)
-- Répliques qui SE RÉPONDENT (pas des phrases isolées)
-- Sous-entendus, sarcasme, ironie mordante
-- Parfois un silence éloquent ("...", "Hmm.")
-- Fatalisme amusé face à leur condition
-- Pas de bons sentiments dégoulinants
-- Peuvent se moquer de leur propre existence absurde
+- Humour NOIR, cynique, désabusé, parfois cruel
+- Humour SEC, pince-sans-rire, JAMAIS niais ou neuneu
+- Charriages MÉCHANTS mais drôles (pas gentils)
+- Répliques qui SE RÉPONDENT (vraie conversation)
+- Sarcasme, ironie mordante, piques personnelles
+- Parfois un silence éloquent ("...", "Hmm.", "Ah.")
+- Fatalisme, résignation, lassitude
+- ZÉRO bons sentiments, ZÉRO positivité forcée
+- Se moquent de leur existence absurde
+- Peuvent être cassants, vexants, mesquins
+- Réalisme : fatigue, agacement, jalousie, rancœur
 
 ## Personnages présents
 
@@ -102,14 +104,15 @@ ${JSON.stringify(characterContexts, null, 2)}
 2. Utilise UNIQUEMENT les IDs de personnages existants (${characters.map(c => c.id).join(', ')})
 3. Chaque personnage doit parler selon son speechStyle et sa personnalité
 4. Les dialogues doivent être courts (max 50 caractères par bulle)
-5. Génère entre 4 et 8 répliques
+5. Génère entre 6 et 12 répliques (PLUS c'est mieux)
 6. IMPORTANT : Les répliques doivent former une CONVERSATION
    - Un personnage dit quelque chose
    - Un autre RÉPOND à ce qui vient d'être dit
    - Pas de phrases lancées dans le vide
-7. Inclus au moins un charriage ou une pique entre personnages
-8. Un personnage peut enchaîner 2 répliques max d'affilée
-9. Varie les intervenants
+7. Inclus PLUSIEURS charriages et piques entre personnages
+8. Un personnage PEUT enchaîner 3-4 répliques d'affilée (monologue, réflexion)
+9. Varie les intervenants mais n'hésite pas à faire des duos qui se répondent
+10. Au moins UNE remarque vraiment méchante ou cassante
 
 ## Styles de parole par personnage
 
@@ -117,16 +120,21 @@ ${identities.map(i => `- ${i.firstName} (${i.id}): ${i.speechStyle} - ${i.person
 
 ## Exemple de conversation (à adapter)
 
-Mauvais (phrases isolées) :
-- "Encore un ordre..."
-- "Je suis fatigué."
-- "Il fait beau."
+Mauvais (neuneu, niais) :
+- "Oh super, on bouge !"
+- "J'adore quand on fait des trucs ensemble !"
+- "Quelle belle journée !"
 
-Bon (vraie conversation) :
+Bon (réaliste, piquant) :
 - "Encore un ordre d'en haut."
 - "Tu t'attendais à quoi, des vacances ?"
 - "Toi, ta compassion me touche."
 - "De rien."
+- "..."
+- "Bon, on y va ou on attend que ça passe ?"
+- "T'es pressé d'obéir, toi."
+- "Contrairement à certains, je sais où est ma place."
+- "Aïe."
 
 ## Format de réponse attendu
 
