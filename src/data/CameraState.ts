@@ -58,6 +58,42 @@ export const clampCamera = (
   return { ...camera, x, y, offsetX, offsetY };
 };
 
+export const centerCameraOnTile = (
+  camera: CameraState,
+  tileX: number,
+  tileY: number,
+  worldWidth: number,
+  worldHeight: number
+): CameraState => {
+  // Center the camera on the given tile
+  const targetX = Math.round(tileX - camera.viewportWidth / 2);
+  const targetY = Math.round(tileY - camera.viewportHeight / 2);
+  
+  const newCamera = {
+    ...camera,
+    x: targetX,
+    y: targetY,
+    offsetX: 0,
+    offsetY: 0,
+  };
+  
+  return clampCamera(newCamera, worldWidth, worldHeight, 0);
+};
+
+export const isTileVisible = (
+  camera: CameraState,
+  tileX: number,
+  tileY: number,
+  margin: number = 2
+): boolean => {
+  const minX = camera.x + margin;
+  const maxX = camera.x + camera.viewportWidth - margin;
+  const minY = camera.y + margin;
+  const maxY = camera.y + camera.viewportHeight - margin;
+  
+  return tileX >= minX && tileX <= maxX && tileY >= minY && tileY <= maxY;
+};
+
 export const moveCameraPixels = (
   camera: CameraState,
   dx: number,

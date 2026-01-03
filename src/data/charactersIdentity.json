@@ -1,14 +1,114 @@
 {
   "characters": [
-    { "id": "c1", "hairColor": "brown" },
-    { "id": "c2", "hairColor": "grey" },
-    { "id": "c3", "hairColor": "brown" },
-    { "id": "c4", "hairColor": "grey" },
-    { "id": "c5", "hairColor": "brown" },
-    { "id": "c6", "hairColor": "grey" },
-    { "id": "c7", "hairColor": "brown" },
-    { "id": "c8", "hairColor": "grey" },
-    { "id": "c9", "hairColor": "brown" },
-    { "id": "c10", "hairColor": "grey" }
+    {
+      "id": "c1",
+      "firstName": "Marcel",
+      "sex": "male",
+      "age": 42,
+      "hairColor": "brown",
+      "personalityTraits": ["pragmatique", "protecteur", "légèrement bourru"],
+      "speechStyle": "direct",
+      "socialTendency": "leader",
+      "humorLevel": "medium"
+    },
+    {
+      "id": "c2",
+      "firstName": "Simone",
+      "sex": "female",
+      "age": 67,
+      "hairColor": "grey",
+      "personalityTraits": ["sage", "observatrice", "pince-sans-rire"],
+      "speechStyle": "posé",
+      "socialTendency": "observateur",
+      "humorLevel": "high"
+    },
+    {
+      "id": "c3",
+      "firstName": "Théo",
+      "sex": "male",
+      "age": 19,
+      "hairColor": "brown",
+      "personalityTraits": ["enthousiaste", "naïf", "curieux"],
+      "speechStyle": "familier",
+      "socialTendency": "follower",
+      "humorLevel": "high"
+    },
+    {
+      "id": "c4",
+      "firstName": "Édith",
+      "sex": "female",
+      "age": 55,
+      "hairColor": "grey",
+      "personalityTraits": ["autoritaire", "organisée", "impatiente"],
+      "speechStyle": "sec",
+      "socialTendency": "leader",
+      "humorLevel": "low"
+    },
+    {
+      "id": "c5",
+      "firstName": "Bastien",
+      "sex": "male",
+      "age": 28,
+      "hairColor": "brown",
+      "personalityTraits": ["rêveur", "distrait", "poétique"],
+      "speechStyle": "lyrique",
+      "socialTendency": "solitaire",
+      "humorLevel": "medium"
+    },
+    {
+      "id": "c6",
+      "firstName": "Colette",
+      "sex": "female",
+      "age": 72,
+      "hairColor": "grey",
+      "personalityTraits": ["malicieuse", "nostalgique", "bavarde"],
+      "speechStyle": "anecdotique",
+      "socialTendency": "clown",
+      "humorLevel": "high"
+    },
+    {
+      "id": "c7",
+      "firstName": "Hugo",
+      "sex": "male",
+      "age": 34,
+      "hairColor": "brown",
+      "personalityTraits": ["sarcastique", "intelligent", "désabusé"],
+      "speechStyle": "sarcastique",
+      "socialTendency": "observateur",
+      "humorLevel": "high"
+    },
+    {
+      "id": "c8",
+      "firstName": "Madeleine",
+      "sex": "female",
+      "age": 61,
+      "hairColor": "grey",
+      "personalityTraits": ["maternelle", "inquiète", "généreuse"],
+      "speechStyle": "doux",
+      "socialTendency": "follower",
+      "humorLevel": "low"
+    },
+    {
+      "id": "c9",
+      "firstName": "Léon",
+      "sex": "male",
+      "age": 23,
+      "hairColor": "brown",
+      "personalityTraits": ["provocateur", "charmeur", "impulsif"],
+      "speechStyle": "provocateur",
+      "socialTendency": "clown",
+      "humorLevel": "high"
+    },
+    {
+      "id": "c10",
+      "firstName": "Germaine",
+      "sex": "female",
+      "age": 78,
+      "hairColor": "grey",
+      "personalityTraits": ["stoïque", "mystérieuse", "économe en mots"],
+      "speechStyle": "laconique",
+      "socialTendency": "solitaire",
+      "humorLevel": "medium"
+    }
   ]
 }

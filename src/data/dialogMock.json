@@ -1,0 +1,76 @@
+{
+  "dialogSteps": [
+    {
+      "characterId": "c1",
+      "text": "Bonjour tout le monde !",
+      "duration": 2000,
+      "delayAfter": 500
+    },
+    {
+      "characterId": "c2",
+      "text": "Salut c1, comment ça va ?",
+      "duration": 2500,
+      "delayAfter": 300
+    },
+    {
+      "characterId": "c1",
+      "text": "Très bien, merci !",
+      "duration": 2000,
+      "delayAfter": 200
+    },
+    {
+      "characterId": "c1",
+      "text": "Et toi c2 ?",
+      "duration": 1500,
+      "delayAfter": 400
+    },
+    {
+      "characterId": "c2",
+      "text": "Ça va super !",
+      "duration": 1500,
+      "delayAfter": 200
+    },
+    {
+      "characterId": "c2",
+      "text": "J'ai trouvé un trésor !",
+      "duration": 2000,
+      "delayAfter": 300
+    },
+    {
+      "characterId": "c3",
+      "text": "Un trésor ?!",
+      "duration": 1500,
+      "delayAfter": 200
+    },
+    {
+      "characterId": "c3",
+      "text": "Où ça ?",
+      "duration": 1200,
+      "delayAfter": 300
+    },
+    {
+      "characterId": "c2",
+      "text": "Près de l'eau, suivez-moi !",
+      "duration": 2500,
+      "delayAfter": 400
+    },
+    {
+      "characterId": "c4",
+      "text": "Attendez-moi !",
+      "duration": 1500,
+      "delayAfter": 200
+    },
+    {
+      "characterId": "c4",
+      "text": "Je viens aussi !",
+      "duration": 1500,
+      "delayAfter": 300
+    },
+    {
+      "characterId": "c1",
+      "text": "Allons-y tous ensemble !",
+      "duration": 2000,
+      "delayAfter": 0
+    }
+  ]
+}

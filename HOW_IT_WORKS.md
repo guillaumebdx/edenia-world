@@ -231,3 +231,38 @@ These follow the same structure as LLM responses and can be loaded via Debug but
 | "c3 suit c1" | MOVE_TO_CHARACTER with targetId=c1 |
 | "c5 va en (20, 30)" | MOVE_TO_TILE with target={x:20, y:30} |
 | "la moitié va sur le sable" | Multiple MOVE_TO_GROUND with ground=SAND |
+
+---
+
+## Dialog System
+
+En plus du système de mouvement, un **système de dialogue** permet aux personnages de réagir aux ordres reçus.
+
+### Fonctionnement
+
+1. L'utilisateur envoie un ordre de mouvement (ex: "Rejoignez tous c10")
+2. L'ordre est stocké comme `lastUserPrompt`
+3. L'utilisateur clique sur **Dial** dans la barre de debug
+4. Un appel OpenAI génère un dialogue contextuel
+5. Les bulles s'affichent séquentiellement au-dessus des personnages
+
+### Ton des dialogues
+
+- Humour **noir**, cynique, désabusé
+- Humour **sec**, pince-sans-rire
+- Charriages entre personnages (parfois méchants mais drôles)
+- Vraies **conversations** (répliques qui se répondent)
+- Fatalisme amusé face à leur condition
+- Références détournées à "la voix d'en haut"
+
+### Fichiers du système de dialogue
+
+| Fichier | Rôle |
+|---------|------|
+| `src/data/charactersIdentity.json` | Identités enrichies (personnalité, style de parole) |
+| `src/services/DialogService.ts` | Prompt builder + validation |
+| `src/data/DialogState.ts` | Types et état du dialogue |
+| `src/systems/DialogSystem.ts` | Orchestration des phases (fade, timing) |
+| `src/ui/DialogBubble.tsx` | Composant UI de la bulle |
+
+Voir `DIALOG_SYSTEM.md` pour la documentation complète.

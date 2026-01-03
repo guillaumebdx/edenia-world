@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { StyleSheet, View, PanResponder, Dimensions } from 'react-native';
 import { GridRenderer } from './src/renderer/GridRenderer';
 import { WorldState } from './src/data/WorldState';
-import { createCameraState, moveCameraPixels, CameraState } from './src/data/CameraState';
+import { createCameraState, moveCameraPixels, centerCameraOnTile, isTileVisible, CameraState } from './src/data/CameraState';
 import { loadWorldFromConfig, InitialWorldConfig } from './src/data/WorldLoader';
 import { DebugBar } from './src/ui/DebugBar';
 import { PromptInput } from './src/ui/PromptInput';
@@ -13,10 +13,15 @@ import { updateCharacterMovement, updateFacingDirections, processIntent } from '
 import { processBehavior } from './src/systems/BehaviorSystem';
 import { createEventBus, GameEvent } from './src/systems/EventBus';
 import { buildSystemPrompt, callOpenAI, validateResponse } from './src/services/OpenAIService';
+import { buildDialogSystemPrompt, validateDialogResponse, CharacterIdentity } from './src/services/DialogService';
+import { DialogBubble } from './src/ui/DialogBubble';
+import { DialogState, DialogSequence, createDialogState, loadDialogSequence, clearDialogState } from './src/data/DialogState';
+import { DialogPhase, startCurrentStep, completeFadeIn, startFadeOut, completeFadeOut } from './src/systems/DialogSystem';
 import initialWorldConfig from './src/data/initialWorld.json';
 import charactersIdentity from './src/data/charactersIdentity.json';
 import charactersBehavior from './src/data/charactersBehavior.json';
 import charactersBehavior2 from './src/data/charactersBehavior2.json';
+import dialogMock from './src/data/dialogMock.json';
 
 import Constants from 'expo-constants';
 
@@ -34,10 +39,14 @@ const eventBus = createEventBus();
 export default function App() {
   const [world] = useState<WorldState>(initialWorldState);
   const [camera, setCamera] = useState<CameraState>(initialCamera);
-  const [showGrid, setShowGrid] = useState(true);
-  const [showCharacterIds, setShowCharacterIds] = useState(true);
+  const [showDebugOverlay, setShowDebugOverlay] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [dialogState, setDialogState] = useState<DialogState>(createDialogState());
+  const [dialogPhase, setDialogPhase] = useState<DialogPhase>(DialogPhase.IDLE);
+  const [lastUserPrompt, setLastUserPrompt] = useState<string>('');
+  const [isDialogLoading, setIsDialogLoading] = useState(false);
+  const dialogTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [characters, setCharacters] = useState<CharacterState[]>(() => {
     // Merge identity and behavior configs
     const mergedConfigs = mergeConfigs(
@@ -125,6 +134,9 @@ export default function App() {
         return;
       }
 
+      // Store prompt for dialog context
+      setLastUserPrompt(userPrompt);
+
       // Apply intent updates with sequential processing to avoid race conditions
       setCharacters((prevChars) => {
         const updatedChars = applyIntentUpdates(prevChars, response.intentUpdates);
@@ -142,6 +154,160 @@ export default function App() {
       setIsLoading(false);
     }
   }, [characters, world]);
+
+  // Dialog orchestration
+  const advanceDialog = useCallback((phase: DialogPhase, state: DialogState) => {
+    let update;
+    let nextPhase: DialogPhase;
+
+    switch (phase) {
+      case DialogPhase.IDLE:
+        update = startCurrentStep(state);
+        nextPhase = DialogPhase.FADE_IN;
+        break;
+      case DialogPhase.FADE_IN:
+        update = completeFadeIn(state);
+        nextPhase = DialogPhase.SHOWING;
+        break;
+      case DialogPhase.SHOWING:
+        update = startFadeOut(state);
+        nextPhase = DialogPhase.FADE_OUT;
+        break;
+      case DialogPhase.FADE_OUT:
+        update = completeFadeOut(state);
+        nextPhase = update.state.isPlaying ? DialogPhase.DELAY : DialogPhase.IDLE;
+        break;
+      case DialogPhase.DELAY:
+        update = startCurrentStep(state);
+        nextPhase = DialogPhase.FADE_IN;
+        break;
+      default:
+        return;
+    }
+
+    // Move camera to speaking character if off-screen (on FADE_IN start)
+    if ((phase === DialogPhase.IDLE || phase === DialogPhase.DELAY) && update.state.currentBubble) {
+      const speakingChar = characters.find(c => c.id === update.state.currentBubble?.characterId);
+      if (speakingChar) {
+        setCamera(prevCamera => {
+          if (!isTileVisible(prevCamera, speakingChar.tileX, speakingChar.tileY, 3)) {
+            return centerCameraOnTile(prevCamera, speakingChar.tileX, speakingChar.tileY, world.width, world.height);
+          }
+          return prevCamera;
+        });
+      }
+    }
+
+    setDialogState(update.state);
+    setDialogPhase(nextPhase);
+
+    if (update.scheduleNext !== undefined && update.state.isPlaying) {
+      dialogTimeoutRef.current = setTimeout(() => {
+        advanceDialog(nextPhase, update.state);
+      }, update.scheduleNext);
+    }
+  }, [characters, world.width, world.height]);
+
+  const handleLoadDialog = useCallback(async () => {
+    if (dialogState.isPlaying || isDialogLoading) return;
+    
+    if (!OPENAI_API_KEY) {
+      console.log('[DIALOG] No API key, using mock');
+      const newState = loadDialogSequence(createDialogState(), dialogMock as DialogSequence);
+      setDialogState(newState);
+      setDialogPhase(DialogPhase.IDLE);
+      setTimeout(() => advanceDialog(DialogPhase.IDLE, newState), 100);
+      return;
+    }
+
+    if (!lastUserPrompt) {
+      console.log('[DIALOG] No previous prompt, using mock');
+      const newState = loadDialogSequence(createDialogState(), dialogMock as DialogSequence);
+      setDialogState(newState);
+      setDialogPhase(DialogPhase.IDLE);
+      setTimeout(() => advanceDialog(DialogPhase.IDLE, newState), 100);
+      return;
+    }
+
+    setIsDialogLoading(true);
+    console.log('[DIALOG] Generating dialog via OpenAI...');
+
+    try {
+      const identities = (charactersIdentity as { characters: CharacterIdentity[] }).characters;
+      const systemPrompt = buildDialogSystemPrompt(characters, identities, lastUserPrompt);
+      
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Génère un dialogue réactif entre les personnages.' },
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      if (!content) {
+        throw new Error('No content in response');
+      }
+
+      // Extract JSON from response (handle markdown code blocks)
+      let jsonStr = content;
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1].trim();
+      }
+
+      const dialogResponse = JSON.parse(jsonStr) as DialogSequence;
+      const validIds = characters.map(c => c.id);
+      
+      if (!validateDialogResponse(dialogResponse, validIds)) {
+        throw new Error('Invalid dialog response structure');
+      }
+
+      console.log('[DIALOG] Generated', dialogResponse.dialogSteps.length, 'dialog steps');
+      
+      const newState = loadDialogSequence(createDialogState(), dialogResponse);
+      setDialogState(newState);
+      setDialogPhase(DialogPhase.IDLE);
+      
+      setTimeout(() => {
+        advanceDialog(DialogPhase.IDLE, newState);
+      }, 100);
+    } catch (error) {
+      console.error('[DIALOG] Error:', error);
+      // Fallback to mock on error
+      console.log('[DIALOG] Falling back to mock');
+      const newState = loadDialogSequence(createDialogState(), dialogMock as DialogSequence);
+      setDialogState(newState);
+      setDialogPhase(DialogPhase.IDLE);
+      setTimeout(() => advanceDialog(DialogPhase.IDLE, newState), 100);
+    } finally {
+      setIsDialogLoading(false);
+    }
+  }, [dialogState.isPlaying, isDialogLoading, advanceDialog, characters, lastUserPrompt]);
+
+  // Cleanup dialog timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dialogTimeoutRef.current) {
+        clearTimeout(dialogTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     lastTime.current = Date.now();
@@ -174,7 +340,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer} {...panResponder.panHandlers}>
-        <GridRenderer world={world} camera={camera} tileSize={TILE_SIZE} showGrid={showGrid} />
+        <GridRenderer world={world} camera={camera} tileSize={TILE_SIZE} showGrid={showDebugOverlay} />
         {characters.map((char) => (
           <Character
             key={char.id}
@@ -185,9 +351,21 @@ export default function App() {
             offsetX={camera.offsetX}
             offsetY={camera.offsetY}
             hairColor={char.hairColor}
-            showId={showCharacterIds}
+            showId={showDebugOverlay}
           />
         ))}
+        {dialogState.currentBubble && (
+          <DialogBubble
+            key={`${dialogState.currentStepIndex}-${dialogState.currentBubble.characterId}`}
+            characterId={dialogState.currentBubble.characterId}
+            text={dialogState.currentBubble.text}
+            opacity={dialogState.currentBubble.opacity}
+            characters={characters}
+            cameraX={camera.x}
+            cameraY={camera.y}
+            tileSize={TILE_SIZE}
+          />
+        )}
       </View>
       <View style={styles.bottomPanel}>
         <PromptInput
@@ -196,10 +374,8 @@ export default function App() {
           error={promptError}
         />
         <DebugBar
-        showGrid={showGrid}
-        onToggleGrid={() => setShowGrid((prev) => !prev)}
-        showCharacterIds={showCharacterIds}
-        onToggleCharacterIds={() => setShowCharacterIds((prev) => !prev)}
+        showDebugOverlay={showDebugOverlay}
+        onToggleDebugOverlay={() => setShowDebugOverlay((prev) => !prev)}
         onLoadMock1={() => {
           setCharacters((prevChars) => {
             const updatedChars = applyBehaviors(prevChars, charactersBehavior as CharactersBehaviorConfig);
@@ -220,6 +396,8 @@ export default function App() {
             return processedChars;
           });
         }}
+        onLoadDialog={handleLoadDialog}
+        isDialogPlaying={dialogState.isPlaying || isDialogLoading}
         />
       </View>
     </View>

@@ -21,7 +21,7 @@ Vibe coded with Claude (Anthropic)
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/Edenia-World.git
+git clone https://github.com/guillaumebdx/Edenia-World.git
 cd Edenia-World
 ```
 
